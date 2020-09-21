@@ -61,11 +61,6 @@ class course_edit_form extends moodleform {
         $mform->addRule('shortname', get_string('missingshortname'), 'required', null, 'client');
         $mform->setType('shortname', PARAM_MULTILANG);
 
-        // Add custom fields to the form.
-        $handler = core_course\customfield\course_handler::create();
-        $handler->set_parent_context(context_coursecat::instance($this->companyrec->category)); // For course handler only.
-        $handler->instance_form_definition($mform, 0);
-
         // Create course as self enrolable.
         if (iomad::has_capability('block/iomad_company_admin:edit_licenses', context_system::instance())) {
             $selectarray = array(get_string('selfenrolled', 'block_iomad_company_admin'),
@@ -85,6 +80,20 @@ class course_edit_form extends moodleform {
                             get_string('coursesummary'), null, $this->editoroptions);
         $mform->addHelpButton('summary_editor', 'coursesummary');
         $mform->setType('summary_editor', PARAM_RAW);
+
+        $mform->addElement('date_time_selector', 'startdate', get_string('startdate'));
+        $mform->addHelpButton('startdate', 'startdate');
+        $date = (new DateTime())->setTimestamp(usergetmidnight(time()));
+        $date->modify('+1 day');
+        $mform->setDefault('startdate', $date->getTimestamp());
+
+        $mform->addElement('date_time_selector', 'enddate', get_string('enddate'), array('optional' => true));
+        $mform->addHelpButton('enddate', 'enddate');
+
+        // Add custom fields to the form.
+        $handler = core_course\customfield\course_handler::create();
+        $handler->set_parent_context(context_coursecat::instance($this->companyrec->category)); // For course handler only.
+        $handler->instance_form_definition($mform, 0);
 
         // Add action buttons.
         $buttonarray = array();
